@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% include "header_style.html" %}
+    <title>Product</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            {% include "navbar.html" %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                    <script>
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "{{ category }}",
+                            title: "{{ message }}",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    </script>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+        </div>
+        <div class="col-md-12 mt-5">
+            <div class="table-responsive">
+                <table id="product_table" class="display">
+                    <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in data %}
+                        <tr>
+                            <td>{{ item['id']}}</td>
+                            <td>
+                                {% if item['image'] != 'no_image' %}
+                                    <img
+                                            style="width: 30%;"
+                                            src="/static/image/crop/{{ item['image'] }}"
+                                            onerror="this.src='/static/image/image_error.png';"
+                                    >
+
+                                {% endif %}
+
+                                {% if item['image'] == 'no_image' %}
+                                    <img
+                                            style="width: 30%;"
+                                            src="/static/image/no-image.png"
+                                    >
+
+                                {% endif %}
+                            </td>
+                            <td>{{ item['title'] }}</td>
+                            <td>{{ item['price'] }}</td>
+                            <td>{{ item['category'] }}</td>
+                            <td>{{ item['description'] }}</td>
+                            <td>
+                                <a href="/edit_product?id={{ item['id'] }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="far fa-edit"></i>
+                                </a>
+                                <a href="#"
+                                   onclick="deleteUser({{ item['id'] }})"
+                                   class="btn btn-sm btn-outline-danger">
+                                    <i class="far fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+{% include "footer_script.html" %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function deleteUser(id){
+        var url = '{{url_for("product_destroy",id="ID")}}'
+        var newUrl = url.replace("ID",id)
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showDenyButton: true,
+            // showCancelButton: true,
+            confirmButtonText: "Delete",
+            denyButtonText: `Cancel`,
+            backdrop: `
+                rgba(0,0,123,0.4)
+                url('static/image/nyan-cat.gif')
+                left top
+                no-repeat
+            `
+            }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                        // if(response["status"]){
+                {#alert(newUrl);#}
+                window.location.href=newUrl;
+            } else if (result.isDenied) {
+                Swal.fire("deletion cancel  ", "", "error");
+            }
+            });
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $('#product_table').DataTable();
+    });
+
+    function showMyImage(fileInput) {
+        let files = fileInput.files;
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            let imageType = /image.*/;
+            if (!file.type.match(imageType)) {
+                continue;
+            }
+            let img = document.getElementById("thumbnil");
+            img.file = file;
+            let reader = new FileReader();
+            reader.onload = (function (aImg) {
+                return function (e) {
+                    aImg.src = e.target.result;
+                };
+            })(img);
+            reader.readAsDataURL(file);
+        }
+    }
+
+</script>
+</html>

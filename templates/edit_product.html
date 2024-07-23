@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% include "header_style.html" %}
+    <title>Add product</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            {% include "navbar.html" %}
+        </div>
+        {#        <div class="col-md-12 mt-5">#}
+        {#            <div class="table-responsive">#}
+        {#                <table id="product_table" class="display">#}
+        {#                    <thead>#}
+        {#                    <tr>#}
+        {#                        <th>No.</th>#}
+        {#                        <th>Image</th>#}
+        {#                        <th>Title</th>#}
+        {#                        <th>Cost</th>#}
+        {#                        <th>Price</th>#}
+        {#                        <th>Description</th>#}
+        {#                        <th>Action</th>#}
+        {#                    </tr>#}
+        {#                    </thead>#}
+        {#                    <tbody>#}
+        {#                    {% for item in data %}#}
+        {#                        <tr>#}
+        {#                            <td>{{ loop.index }}</td>#}
+        {#                            <td>#}
+        {#                                <img#}
+        {#                                        style="width: 15%;"#}
+        {#                                        src="/static/image/no-image.png"#}
+        {#                                >#}
+        {#                            </td>#}
+        {#                            <td>{{ item['title'] }}</td>#}
+        {#                            <td>{{ item['cost'] }}</td>#}
+        {#                            <td>{{ item['price'] }}</td>#}
+        {#                            <td>{{ item['description'] }}</td>#}
+        {#                            <td>#}
+        {#                                <a href="#" class="btn btn-sm btn-outline-primary">#}
+        {#                                    <i class="far fa-edit"></i>#}
+        {#                                </a>#}
+        {#                                <a href="#" class="btn btn-sm btn-outline-danger">#}
+        {#                                    <i class="far fa-trash-alt"></i>#}
+        {#                                </a>#}
+        {#                            </td>#}
+        {#                        </tr>#}
+        {#                    {% endfor %}#}
+        {#                    </tbody>#}
+        {#                </table>#}
+        {#            </div>#}
+        {#        </div>#}
+        <div class="col-md-12 mt-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Edit Product</h3>
+                    {#                    {{product}}#}
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('update') }}" method="post" name="editProductForm"
+                          enctype="multipart/form-data">
+                        <input type="hidden" id="product_id" name="product_id" value="{{ product['id'] }}">
+                        <div class="form-group">
+                            <div style="text-align: center;">
+                                {% if product['image'] != 'no_image' %}
+                                    <img id="thumbnail"
+                                         style="
+                                         max-width: 100%"
+                                         src="/static/image/crop/{{ product['image'] }}"
+                                         onerror="this.src='/static/image/image_error.png';"
+                                         alt="image"
+                                    >
+                                {% endif %}
+
+                                {% if product['image'] == 'no_image' %}
+                                    <img
+                                            id="thumbnail"
+                                            style=" max-width: 100%"
+                                            src="/static/image/no-image.png"
+                                            alt="image"
+                                    >
+                                {% endif %}
+                            </div>
+                            <label for="file">Image</label>
+
+                            <input
+                                    type="file"
+                                    accept="image/*"
+                                    class="form-control"
+                                    id="file"
+                                    name="file"
+                                    onchange="showMyImage(this)"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input required value="{{ product['title'] }}" type="text" class="form-control" id="title"
+                                   name="title" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input required value="{{ product['price'] }}" type="number" class="form-control" id="price"
+                                   name="price" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            {#                            {{ product['category'] }}#}
+                            <label for="category">Category</label>
+                            <select required class="form-control" id="category" name="category">
+                                <option {{ 'selected' if product['category']=='drink' else '' }} value="drink">drink
+                                </option>
+                                <option {{ 'selected' if product['category']=='water' else '' }} value="water">water
+                                </option>
+                                <option {{ 'selected' if product['category']=='beer' else '' }} value="beer">beer
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea required
+                                    class="form-control" id="description" name="description"
+                                    rows="5"
+                            >{{ product['description'] }}</textarea>
+                        </div>
+                        <button onclick="window.location.href='/product'" type="reset" class="btn btn-danger">Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary float-right">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.min.js"
+        integrity="sha512-N3On+/ul9gZ5B5nKApKXscL6NE5CB7DK5EvVv2TcVd+fd3d5oR2xFTfBQYp6e09AVB7PcG9+pbBu7I3/N6W1Qw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.2.1/compressor.js"
+        integrity="sha512-nOF0eaRH61urlpNZ0Fv7bmeiD3zDKhHsO0qmK2JdepJLAKSrekIIgjeVTs/wEG4S412984RK+0nSkBYA4SdSaw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+// Initialize Cropper object
+let cropper;
+
+function showMyImage(fileInput) {
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const image = document.getElementById('thumbnail');
+        image.setAttribute('src', e.target.result);
+
+        // Initialize Cropper.js after image is loaded
+        if (cropper) {
+            cropper.destroy();
+        }
+        cropper = new Cropper(image, {
+            aspectRatio: 0, // Set your desired aspect ratio for cropping
+        });
+
+    };
+    if (file) {
+        reader.readAsDataURL(file);
+    } else {
+        initializeCropper();
+    }
+
+    if (file) {
+        new Compressor(file, {
+            quality: 0.6,
+            success(compressedFile) {
+                console.log('Compressed original file:', compressedFile);
+                // Append compressed Blob to formData
+                formData.append('compress_file', compressedFile, compressedFile.name);
+            }
+        });
+    }
+}
+
+function initializeCropper() {
+    const image = document.getElementById('thumbnail');
+
+    if (image && image.src) {
+        if (cropper) {
+            cropper.destroy();
+        }
+        cropper = new Cropper(image, {
+            aspectRatio: 0, // Set your desired aspect ratio for cropping
+        });
+    }
+}
+
+// Submit form with AJAX
+$(document).ready(function () {
+    initializeCropper(); // Call the initialization function
+    $('form[name="editProductForm"]').submit(function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Check if cropper is initialized and an image is selected
+        if (!cropper) {
+            console.error('Cropper.js not initialized or no image selected');
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Please select an image and crop it",
+            });
+            return;
+        }
+
+        // Get cropped image blob
+        cropper.getCroppedCanvas().toBlob((croppedBlob) => {
+            const formData = new FormData($('form[name="editProductForm"]')[0]);
+            const fileInput = document.getElementById('file');
+            const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
+            if (fileInput.files.length === 0) {
+                // No new file selected, only save cropped image
+                formData.append('cropped_image', croppedBlob, 'cropped_image.png');
+                submitFormData(formData);
+            } else {
+                // Check if original file size exceeds 2MB
+                if (fileInput.files[0].size > maxSize) {
+                    console.log('Original file size exceeds 2MB. Compressing...');
+
+                    // Compress original file using Compressor.js
+                    new Compressor(fileInput.files[0], {
+                        quality: 0.6,
+                        success(compressedFile) {
+                            console.log('Compressed original file:', compressedFile);
+
+                            // Append compressed Blob to formData
+                            formData.append('compress_file', compressedFile, compressedFile.name);
+
+                            // Check if cropped image blob size exceeds 2MB
+                            if (croppedBlob.size > maxSize) {
+                                console.log('Cropped image size exceeds 2MB. Compressing...');
+
+                                // Compress cropped image using Compressor.js
+                                new Compressor(croppedBlob, {
+                                    quality: 0.6,
+                                    success(compressedCropped) {
+                                        console.log('Compressed cropped image:', compressedCropped);
+
+                                        // Append compressed Blob to formData
+                                        formData.append('cropped_image', compressedCropped, fileInput.files[0].name);
+
+                                        // Submit form with AJAX
+                                        submitFormData(formData);
+                                    },
+                                    error(err) {
+                                        console.error('Compression error:', err);
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Oops...",
+                                            text: "Failed to compress the cropped image.",
+                                        });
+                                    },
+                                });
+                            } else {
+                                // Append original cropped image blob to formData
+                                formData.append('cropped_image', croppedBlob, fileInput.files[0].name);
+
+                                // Submit form with AJAX
+                                submitFormData(formData);
+                            }
+                        },
+                        error(err) {
+                            console.error('Compression error:', err);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Failed to compress the original file.",
+                            });
+                        },
+                    });
+                } else {
+                    // Append original file to formData
+                    formData.append('cropped_image', croppedBlob, fileInput.files[0].name);
+
+                    // Submit form with AJAX
+                    submitFormData(formData);
+                }
+            }
+        });
+    });
+
+    function submitFormData(formData) {
+        // AJAX submission
+        $.ajax({
+            url: '{{ url_for('update') }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                window.location.href = '/redirect_with_success';
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Cannot crop an non-image(please insert a new image)",
+                });
+            }
+        });
+    }
+});
+
+
+
+</script>
+
+{% include "footer_script.html" %}
+</html>
